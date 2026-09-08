@@ -11071,14 +11071,6 @@ public class MessageObject {
         if (document == null) return false;
         String mime = document.mime_type;
         return "image/webp".equals(mime) || "video/webm".equals(mime);
-        }
-        for (int a = 0, N = document.attributes.size(); a < N; a++) {
-            TLRPC.DocumentAttribute attribute = document.attributes.get(a);
-            if (attribute instanceof TLRPC.TL_documentAttributeCustomEmoji) {
-                return ((TLRPC.TL_documentAttributeCustomEmoji) attribute).free;
-            }
-        }
-        return false;
     }
 
     public static boolean isTextColorEmoji(TLRPC.Document document) {
