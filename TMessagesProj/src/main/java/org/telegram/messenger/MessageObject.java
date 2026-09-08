@@ -11067,6 +11067,11 @@ public class MessageObject {
         if (document == null) {
             return false;
         }
+    public static boolean isCustomEmojiStickerMime(TLRPC.Document document) {
+        if (document == null) return false;
+        String mime = document.mime_type;
+        return "image/webp".equals(mime) || "video/webm".equals(mime);
+        }
         for (int a = 0, N = document.attributes.size(); a < N; a++) {
             TLRPC.DocumentAttribute attribute = document.attributes.get(a);
             if (attribute instanceof TLRPC.TL_documentAttributeCustomEmoji) {
