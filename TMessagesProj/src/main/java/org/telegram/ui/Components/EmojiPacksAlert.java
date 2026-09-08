@@ -1126,7 +1126,20 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
             }
         }
 
-//        boolean mePremium = UserConfig.getInstance(currentAccount).isPremium();
+        boolean mePremium = UserConfig.getInstance(currentAccount).isPremium();
+        boolean nonPremiumAllowed = false; // Це значення потрібно передати з EmojiView або з NaConfig
+        // Але простіше використовувати NaConfig безпосередньо
+        boolean nonPremiumAllowed = NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !mePremium;
+
+        // У циклі перевірки, чи є преміум-емодзі в паку:
+        boolean hasPremium = false;
+        for (TLRPC.Document doc : set.documents) {
+            if (!MessageObject.isFreeEmoji(doc) && !isCustomEmojiStickerMime(doc)) { // додай цей метод
+                hasPremium = true;
+                break;
+            }
+        }
+        boolean unlock = !mePremium && !nonPremiumAllowed && hasPremium;
         ArrayList<TLRPC.TL_messages_stickerSet> canInstallPacks = new ArrayList<>(notInstalledPacks);
 //        for (int i = 0; i < canInstallPacks.size(); ++i) {
 //            if (MessageObject.isPremiumEmojiPack(canInstallPacks.get(i)) && !mePremium) {
