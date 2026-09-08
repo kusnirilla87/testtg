@@ -454,10 +454,12 @@ public class EmojiView extends FrameLayout implements
         }
 
         default void onCustomEmojiSelected(long documentId, TLRPC.Document document, String emoticon, boolean isRecent) {
-                default boolean allowNonPremiumCustomEmoji() { return false; }
-                default boolean canShowNonPremiumCustomEmoji(TLRPC.Document document) { return false; }
-                default void onNonPremiumCustomEmojiSelected(long documentId, TLRPC.Document document, String emoticon, boolean isRecent) {}
+
         }
+
+        default boolean allowNonPremiumCustomEmoji() { return false; }
+        default boolean canShowNonPremiumCustomEmoji(TLRPC.Document document) { return false; }
+        default void onNonPremiumCustomEmojiSelected(long documentId, TLRPC.Document document, String emoticon, boolean isRecent) {}
 
         default void onStickerSelected(View view, TLRPC.Document sticker, String query, Object parent, MessageObject.SendAnimationData sendAnimationData, boolean notify, int scheduleDate, int scheduleRepeatPeriod) {
 
