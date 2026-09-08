@@ -724,7 +724,7 @@ public class StickerSetCell extends FrameLayout {
                     // Перевіряємо, чи всі емодзі в паку підтримуються як стікери
                     for (int i = 0; i < set.documents.size(); ++i) {
                         TLRPC.Document doc = set.documents.get(i);
-                        if (!MessageObject.isFreeEmoji(doc) && !isCustomEmojiStickerMime(doc)) {
+                        if (!MessageObject.isFreeEmoji(doc) && !MessageObject.isCustomEmojiStickerMime(doc)) {
                             premium = true;
                             break;
                         }
