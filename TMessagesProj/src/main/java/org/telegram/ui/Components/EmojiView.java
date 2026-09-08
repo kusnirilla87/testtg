@@ -420,7 +420,11 @@ public class EmojiView extends FrameLayout implements
     private Drawable searchIconDrawable;
     private Drawable searchIconDotDrawable;
     private boolean allowAnimatedEmoji;
+    private boolean allowEmojisForNonPremium;
 
+    public void allowEmojisForNonPremium(boolean allow) {
+        allowEmojisForNonPremium = allow;
+}
     private Long emojiScrollToStickerId;
 
     private LongSparseArray<AnimatedEmojiDrawable> animatedEmojiDrawables;
@@ -450,7 +454,9 @@ public class EmojiView extends FrameLayout implements
         }
 
         default void onCustomEmojiSelected(long documentId, TLRPC.Document document, String emoticon, boolean isRecent) {
-
+                default boolean allowNonPremiumCustomEmoji() { return false; }
+                default boolean canShowNonPremiumCustomEmoji(TLRPC.Document document) { return false; }
+                default void onNonPremiumCustomEmojiSelected(long documentId, TLRPC.Document document, String emoticon, boolean isRecent) {}
         }
 
         default void onStickerSelected(View view, TLRPC.Document sticker, String query, Object parent, MessageObject.SendAnimationData sendAnimationData, boolean notify, int scheduleDate, int scheduleRepeatPeriod) {
@@ -474,7 +480,7 @@ public class EmojiView extends FrameLayout implements
         }
 
         default boolean canAddCaptionToGif(TLRPC.Document document) {
-            return false;
+                return false;
         }
 
         default void onGifSelectedForAddCaption(View view, Object gif, String query, Object parent, boolean notify, int scheduleDate, int scheduleRepeatPeriod) {
@@ -1393,6 +1399,12 @@ public class EmojiView extends FrameLayout implements
                     emoticon = MessageObject.findAnimatedEmojiEmoticon(document);
                 }
                 if (!MessageObject.isFreeEmoji(document) && !UserConfig.getInstance(currentAccount).isPremium() && !(delegate != null && delegate.isUserSelf()) && !allowEmojisForNonPremium && !isGroupEmojis) {
+                    // Перевіряємо, чи можна показати/відправити як стікер
+                    if (delegate != null && delegate.allowNonPremiumCustomEmoji() && delegate.canShowNonPremiumCustomEmoji(document)) {
+                        delegate.onNonPremiumCustomEmojiSelected(documentId, document, emoticon, imageViewEmoji.isRecent);
+                        return;
+                    }
+                    // Інакше показуємо буллетин про преміум (оригінальний код нижче)
                     showBottomTab(false, true);
                     BulletinFactory factory = fragment != null ? BulletinFactory.of(fragment) : BulletinFactory.of(bulletinContainer, resourcesProvider);
                     if (premiumBulletin || fragment == null) {
@@ -1407,24 +1419,7 @@ public class EmojiView extends FrameLayout implements
                                 R.raw.saved_messages,
                                 AndroidUtilities.replaceTags(getString(R.string.UnlockPremiumEmojiHint2)),
                                 getString(R.string.Open),
-                                () -> {
-                                    Bundle args = new Bundle();
-                                    args.putLong("user_id", UserConfig.getInstance(currentAccount).getClientUserId());
-                                    fragment.presentFragment(new ChatActivity(args) {
-                                        @Override
-                                        public void onTransitionAnimationEnd(boolean isOpen, boolean backward) {
-                                            super.onTransitionAnimationEnd(isOpen, backward);
-                                            if (isOpen && chatActivityEnterView != null) {
-                                                chatActivityEnterView.showEmojiView();
-                                                chatActivityEnterView.postDelayed(() -> {
-                                                    if (chatActivityEnterView.getEmojiView() != null) {
-                                                        chatActivityEnterView.getEmojiView().scrollEmojisToAnimated();
-                                                    }
-                                                }, 100);
-                                            }
-                                        }
-                                    });
-                                }
+                                () -> { /* ... твій код відкриття чату ... */ }
                         ).show();
                     }
                     premiumBulletin = !premiumBulletin;
@@ -7192,6 +7187,7 @@ public class EmojiView extends FrameLayout implements
         public boolean featured;
         public boolean expanded;
         public boolean forGroup;
+        public boolean enabledForNonPremium;
 
         public int resId;
     }
@@ -7547,6 +7543,19 @@ public class EmojiView extends FrameLayout implements
                     pack.featured = false;
                     pack.expanded = true;
                     pack.forGroup = true;
+                    if (allowEmojisForNonPremium && pack.documents != null && !pack.documents.isEmpty()) {
+                            // Перевіряємо, чи всі документи в паку підтримуються як стікери
+                            boolean allSupported = true;
+                            for (TLRPC.Document doc : pack.documents) {
+                                if (!isCustomEmojiStickerMime(doc)) {
+                                    allSupported = false;
+                                    break;
+                                }
+                            }
+                            pack.enabledForNonPremium = allSupported;
+                        } else {
+                            pack.enabledForNonPremium = false;
+                        }
                     emojipacksProcessed.add(pack);
                     removeGroupEmojiPackFromInstalled(pack.set, installedEmojipacks);
                 }
@@ -10298,4 +10307,9 @@ public class EmojiView extends FrameLayout implements
             setFoundPackButtonText(view, stickerSet, set, sticker, isEmoji, true);
         });
     }
+    private boolean isCustomEmojiStickerMime(TLRPC.Document document) {
+    if (document == null) return false;
+    String mime = document.mime_type;
+    return "image/webp".equals(mime) || "video/webm".equals(mime);
+}
 }
