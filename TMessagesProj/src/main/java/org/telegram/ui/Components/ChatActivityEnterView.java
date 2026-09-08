@@ -13172,7 +13172,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                 if (!canShowNonPremiumCustomEmoji(document)) return;
                 sendCustomEmojiAsUploadedSticker(document, emoticon, isRecent);
             }
-        });
+
             @Override
             public boolean isUserSelf() {
                 return dialog_id == UserConfig.getInstance(currentAccount).getClientUserId();
