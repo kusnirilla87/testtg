@@ -1715,7 +1715,12 @@ object NaConfig {
             return configs.associate { it.key to it.type }
         }
     }
-
+    val sendLockedCustomEmojiAsSticker =
+    addConfig(
+        "SendLockedCustomEmojiAsSticker",
+        ConfigItem.configTypeBool,
+        false
+    )
     init {
         init()
     }
