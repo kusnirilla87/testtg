@@ -11067,9 +11067,13 @@ public class MessageObject {
         if (document == null) {
             return false;
         }
-        // ⚠️ УВАГА: оригінальна логіка цього методу була втрачена при попередньому редагуванні.
-        // Тут стоїть тимчасова заглушка (завжди true), щоб проєкт компілювався.
-        // Перевірте git-історію файлу, щоб відновити справжню перевірку.
+        for (int a = 0, N = document.attributes.size(); a < N; a++) {
+            TLRPC.DocumentAttribute attribute = document.attributes.get(a);
+            if (attribute instanceof TLRPC.TL_documentAttributeCustomEmoji) {
+                return ((TLRPC.TL_documentAttributeCustomEmoji) attribute).free;
+            }
+        }
+        // Не кастомне емодзі (звичайний стікер/документ) — преміум-обмеження не стосується.
         return true;
     }
 
