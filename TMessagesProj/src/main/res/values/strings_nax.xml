@@ -2,6 +2,8 @@
 <resources>
     <string name="NagramX" translatable="false">exteraless</string>
     <string name="XChannel">Nagram X Channel</string>
+    <string name="SendLockedCustomEmojiAsSticker">Надсилати преміум-емодзі як стікери</string>
+    <string name="SendLockedCustomEmojiAsStickerInfo">Дозволяє надсилати преміум-емодзі (WebP/WebM) без підписки Premium</string>
     <string name="EnableSaveDeletedMessages">Save Deleted Messages</string>
     <string name="DeletedMessage">deleted</string>
     <string name="EnableSaveEditsHistory">Save Edits History</string>
