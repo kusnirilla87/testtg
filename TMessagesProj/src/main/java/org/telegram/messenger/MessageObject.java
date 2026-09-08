@@ -11073,14 +11073,13 @@ public class MessageObject {
                 return ((TLRPC.TL_documentAttributeCustomEmoji) attribute).free;
             }
         }
-        // Не кастомне емодзі (звичайний стікер/документ) — преміум-обмеження не стосується.
         return true;
     }
 
     public static boolean isCustomEmojiStickerMime(TLRPC.Document document) {
         if (document == null) return false;
         String mime = document.mime_type;
-        return "image/webp".equals(mime) || "video/webm".equals(mime);
+        return "image/webp".equals(mime) || "video/webm".equals(mime) || "application/x-tgsticker".equals(mime);
     }
 
     public static boolean isTextColorEmoji(TLRPC.Document document) {
