@@ -13130,6 +13130,7 @@ public class ChatActivityEnterView extends FrameLayout implements
             return;
         }
         emojiView = new EmojiView(parentFragment, allowAnimatedEmoji, true, true, getContext(), true, info, sizeNotifierLayout, shouldDrawBackground, resourcesProvider, emojiViewFrozen, windowInsetsInAppController != null) {
+        emojiView.allowEmojisForNonPremium(NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !UserConfig.getInstance(currentAccount).isPremium());    
             @Override
             public void setTranslationY(float translationY) {
                 super.setTranslationY(translationY);
@@ -13151,7 +13152,21 @@ public class ChatActivityEnterView extends FrameLayout implements
             emojiView.isNewHeightControl = true;
         }
         emojiView.setDelegate(new EmojiView.EmojiViewDelegate() {
+            @Override
+            public boolean allowNonPremiumCustomEmoji() {
+                return NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !UserConfig.getInstance(currentAccount).isPremium();
+            }
 
+            @Override
+            public boolean canShowNonPremiumCustomEmoji(TLRPC.Document document) {
+                return allowNonPremiumCustomEmoji() && document != null && isCustomEmojiStickerMime(document);
+            }
+
+            @Override
+            public void onNonPremiumCustomEmojiSelected(long documentId, TLRPC.Document document, String emoticon, boolean isRecent) {
+                if (!canShowNonPremiumCustomEmoji(document)) return;
+                sendCustomEmojiAsUploadedSticker(document, emoticon, isRecent);
+            }
             @Override
             public boolean isUserSelf() {
                 return dialog_id == UserConfig.getInstance(currentAccount).getClientUserId();
@@ -17191,4 +17206,14 @@ public class ChatActivityEnterView extends FrameLayout implements
         cameraSelectionPopup.dimBehind();
         if (!NekoConfig.disableVibration.Bool()) performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP);
     }
+private boolean isCustomEmojiStickerMime(TLRPC.Document document) {
+    if (document == null) return false;
+    String mime = document.mime_type;
+    return "image/webp".equals(mime) || "video/webm".equals(mime);
+    }
+private void sendCustomEmojiAsUploadedSticker(TLRPC.Document document, String emoticon, boolean isRecent) {
+    if (document == null) return;
+    // Використовуємо існуючий метод відправки стікерів
+    onStickerSelected(document, emoticon, null, null, false, !NaConfig.INSTANCE.getSilentMessageByDefault().Bool(), 0, 0);
+}
 }
