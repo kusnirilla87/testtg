@@ -83,6 +83,11 @@ public class EmojiTabsStrip extends ScrollableHorizontalScrollView {
     private Theme.ResourcesProvider resourcesProvider;
     private boolean includeAnimated;
 
+    private boolean allowEmojisForNonPremium;
+
+    public void setAllowEmojisForNonPremium(boolean allow) {
+        this.allowEmojisForNonPremium = allow;
+    }
     public EmojiTabButton toggleEmojiStickersTab;
     public EmojiTabButton recentTab;
     public EmojiTabButton giftsTab;
@@ -505,7 +510,7 @@ public class EmojiTabsStrip extends ScrollableHorizontalScrollView {
     }
 
     protected boolean allowEmojisForNonPremium() {
-        return false;
+        return this.allowEmojisForNonPremium;
     }
 
     boolean first = true;
@@ -565,7 +570,7 @@ public class EmojiTabsStrip extends ScrollableHorizontalScrollView {
                     currentPackButton.setLock(null, false);
                 }
             } else {
-                final boolean free = newPack.free;
+                final boolean free = newPack.free || (newPack.enabledForNonPremium && allowEmojisForNonPremium);
                 if (newPack.thumbDocumentId != null) {
                     if (currentPackButton == null) {
                         currentPackButton = new EmojiTabButton(getContext(), newPack.thumbDocumentId, free, false, false);
