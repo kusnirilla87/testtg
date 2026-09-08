@@ -54,6 +54,7 @@ import org.telegram.messenger.ImageReceiver;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MediaDataController;
 import org.telegram.messenger.MessageObject;
+import xyz.nextalone.nagram.NaConfig;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.NotificationCenter;
 import org.telegram.messenger.R;
@@ -1127,16 +1128,21 @@ public class EmojiPacksAlert extends BottomSheet implements NotificationCenter.N
         }
 
         boolean mePremium = UserConfig.getInstance(currentAccount).isPremium();
-        boolean nonPremiumAllowed = false; // Це значення потрібно передати з EmojiView або з NaConfig
-        // Але простіше використовувати NaConfig безпосередньо
         boolean nonPremiumAllowed = NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !mePremium;
 
         // У циклі перевірки, чи є преміум-емодзі в паку:
         boolean hasPremium = false;
-        for (TLRPC.Document doc : set.documents) {
-            if (!MessageObject.isFreeEmoji(doc) && !isCustomEmojiStickerMime(doc)) { // додай цей метод
-                hasPremium = true;
-                break;
+        outer:
+        for (int i = 0; i < allPacks.size(); ++i) {
+            TLRPC.TL_messages_stickerSet stickerSet = allPacks.get(i);
+            if (stickerSet == null || stickerSet.documents == null) {
+                continue;
+            }
+            for (TLRPC.Document doc : stickerSet.documents) {
+                if (!MessageObject.isFreeEmoji(doc) && !MessageObject.isCustomEmojiStickerMime(doc)) {
+                    hasPremium = true;
+                    break outer;
+                }
             }
         }
         boolean unlock = !mePremium && !nonPremiumAllowed && hasPremium;
