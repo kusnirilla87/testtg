@@ -112,7 +112,7 @@ public class NekoExperimentalSettingsActivity extends BaseNekoXSettingsActivity 
                     getString(R.string.BackAnimationSpring),
             }, null));
     private final AbstractConfigCell springAnimationCrossfadeRow = cellGroup.appendCell(new ConfigCellTextCheck(NaConfig.INSTANCE.getSpringAnimationCrossfade()));
-    private final AbstractConfigCell  = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.localPremium));
+    private final AbstractConfigCell localPremiumRow = cellGroup.appendCell(new ConfigCellTextCheck(NekoConfig.localPremium));
     private final AbstractConfigCell sendLockedCustomEmojiAsStickerRow = cellGroup.appendCell(
     new ConfigCellTextCheck(NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker(), getString(R.string.SendLockedCustomEmojiAsStickerInfo)));
 
