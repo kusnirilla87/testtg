@@ -299,7 +299,8 @@ public class FeaturedStickerSetCell2 extends FrameLayout implements Notification
         addButton.setVisibility(VISIBLE);
         this.forceInstalled = forceInstalled;
         isInstalled = forceInstalled || MediaDataController.getInstance(currentAccount).isStickerPackInstalled(set.set.id);
-        isLocked = !UserConfig.getInstance(currentAccount).isPremium() && MessageObject.isPremiumEmojiPack(set);
+        boolean nonPremiumAllowed = NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !UserConfig.getInstance(currentAccount).isPremium();
+        isLocked = !UserConfig.getInstance(currentAccount).isPremium() && MessageObject.isPremiumEmojiPack(set) && !nonPremiumAllowed;
         if (animated) {
             if (isLocked) {
                 unlockButton.setVisibility(VISIBLE);
