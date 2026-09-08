@@ -420,11 +420,6 @@ public class EmojiView extends FrameLayout implements
     private Drawable searchIconDrawable;
     private Drawable searchIconDotDrawable;
     private boolean allowAnimatedEmoji;
-    private boolean allowEmojisForNonPremium;
-
-    public void allowEmojisForNonPremium(boolean allow) {
-        allowEmojisForNonPremium = allow;
-}
     private Long emojiScrollToStickerId;
 
     private LongSparseArray<AnimatedEmojiDrawable> animatedEmojiDrawables;
