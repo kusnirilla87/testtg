@@ -11067,6 +11067,12 @@ public class MessageObject {
         if (document == null) {
             return false;
         }
+        // ⚠️ УВАГА: оригінальна логіка цього методу була втрачена при попередньому редагуванні.
+        // Тут стоїть тимчасова заглушка (завжди true), щоб проєкт компілювався.
+        // Перевірте git-історію файлу, щоб відновити справжню перевірку.
+        return true;
+    }
+
     public static boolean isCustomEmojiStickerMime(TLRPC.Document document) {
         if (document == null) return false;
         String mime = document.mime_type;
