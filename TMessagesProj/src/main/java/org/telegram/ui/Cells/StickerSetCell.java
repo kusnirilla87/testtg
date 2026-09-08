@@ -721,15 +721,15 @@ public class StickerSetCell extends FrameLayout {
                 boolean unlock = !UserConfig.getInstance(adapter.currentAccount).isPremium();
                 if (unlock) {
                     boolean premium = false;
+                    // Перевіряємо, чи всі емодзі в паку підтримуються як стікери
                     for (int i = 0; i < set.documents.size(); ++i) {
-                        if (!MessageObject.isFreeEmoji(set.documents.get(i))) {
+                        TLRPC.Document doc = set.documents.get(i);
+                        if (!MessageObject.isFreeEmoji(doc) && !isCustomEmojiStickerMime(doc)) {
                             premium = true;
                             break;
                         }
                     }
-                    if (!premium) {
-                        unlock = false;
-                    }
+                    if (!premium) unlock = false;
                 }
                 cell.updateButtonState(
                     unlock ? (
