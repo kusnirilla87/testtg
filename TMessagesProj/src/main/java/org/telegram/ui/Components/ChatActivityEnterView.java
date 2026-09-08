@@ -13130,7 +13130,6 @@ public class ChatActivityEnterView extends FrameLayout implements
             return;
         }
         emojiView = new EmojiView(parentFragment, allowAnimatedEmoji, true, true, getContext(), true, info, sizeNotifierLayout, shouldDrawBackground, resourcesProvider, emojiViewFrozen, windowInsetsInAppController != null) {
-        emojiView.allowEmojisForNonPremium(NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !UserConfig.getInstance(currentAccount).isPremium());    
             @Override
             public void setTranslationY(float translationY) {
                 super.setTranslationY(translationY);
@@ -13151,7 +13150,13 @@ public class ChatActivityEnterView extends FrameLayout implements
             emojiView.setShouldDrawBackground(false);
             emojiView.isNewHeightControl = true;
         }
+
+    // ⬇️ ОСЬ ТУТ ДОДАЙ ЦЕЙ РЯДОК ⬇️
+        emojiView.allowEmojisForNonPremium(NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !UserConfig.getInstance(currentAccount).isPremium());
+
         emojiView.setDelegate(new EmojiView.EmojiViewDelegate() {
+        // ... ВСІ МЕТОДИ ДЕЛЕГАТА (вони вже є в тебе, я їх не чіпаю) ...
+        // Але ТИ МАЄШ ДОДАТИ В СЕРЕДИНУ ЦЬОГО ДЕЛЕГАТА ТРИ МЕТОДИ:
             @Override
             public boolean allowNonPremiumCustomEmoji() {
                 return NaConfig.INSTANCE.getSendLockedCustomEmojiAsSticker().Bool() && !UserConfig.getInstance(currentAccount).isPremium();
@@ -13159,7 +13164,7 @@ public class ChatActivityEnterView extends FrameLayout implements
 
             @Override
             public boolean canShowNonPremiumCustomEmoji(TLRPC.Document document) {
-                return allowNonPremiumCustomEmoji() && document != null && isCustomEmojiStickerMime(document);
+                return allowNonPremiumCustomEmoji() && document != null && MessageObject.isCustomEmojiStickerMime(document);
             }
 
             @Override
@@ -13167,6 +13172,7 @@ public class ChatActivityEnterView extends FrameLayout implements
                 if (!canShowNonPremiumCustomEmoji(document)) return;
                 sendCustomEmojiAsUploadedSticker(document, emoticon, isRecent);
             }
+        });
             @Override
             public boolean isUserSelf() {
                 return dialog_id == UserConfig.getInstance(currentAccount).getClientUserId();
