@@ -121,7 +121,6 @@ import androidx.dynamicanimation.animation.DynamicAnimation;
 import androidx.dynamicanimation.animation.SpringAnimation;
 import androidx.dynamicanimation.animation.SpringForce;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.recyclerview.widget.ChatListItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.jetbrains.annotations.NotNull;
@@ -166,6 +165,7 @@ import org.telegram.tgnet.TLObject;
 import org.telegram.tgnet.TLRPC;
 import org.telegram.tgnet.tl.TL_account;
 import org.telegram.tgnet.tl.TL_bots;
+import org.telegram.tgnet.tl.TL_keyboard;
 import org.telegram.tgnet.tl.TL_stories;
 import org.telegram.ui.ActionBar.ActionBar;
 import org.telegram.ui.ActionBar.ActionBarMenuSubItem;
@@ -793,7 +793,7 @@ public class ChatActivityEnterView extends FrameLayout implements
     private boolean allowShowTopView;
 
     private MessageObject pendingMessageObject;
-    private TLRPC.KeyboardButton pendingLocationButton;
+    private TL_keyboard.KeyboardButton pendingLocationButton;
 
     private boolean waitingForKeyboardOpen;
     private boolean waitingForKeyboardOpenAfterAnimation;
@@ -11984,20 +11984,20 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
         updateBotButton(true);
     }
 
-    public boolean didPressedBotButton(final TLRPC.KeyboardButton button, final MessageObject replyMessageObject, final MessageObject messageObject) {
+    public boolean didPressedBotButton(final TL_keyboard.KeyboardButton button, final MessageObject replyMessageObject, final MessageObject messageObject) {
         return didPressedBotButton(button, replyMessageObject, messageObject, null);
     }
 
-    public boolean didPressedBotButton(final TLRPC.KeyboardButton button, final MessageObject replyMessageObject, final MessageObject messageObject, final Browser.Progress progress) {
+    public boolean didPressedBotButton(final TL_keyboard.KeyboardButton button, final MessageObject replyMessageObject, final MessageObject messageObject, final Browser.Progress progress) {
         if (button == null || messageObject == null) {
             return false;
         }
         if (parentFragment != null && parentFragment.getChatMode() == ChatActivity.MODE_QUICK_REPLIES) return false;
-        if (button instanceof TLRPC.TL_keyboardButtonCopy) {
-            final TLRPC.TL_keyboardButtonCopy btn = (TLRPC.TL_keyboardButtonCopy) button;
+        if (button instanceof TL_keyboard.TL_keyboardButtonCopy) {
+            final TL_keyboard.TL_keyboardButtonCopy btn = (TL_keyboard.TL_keyboardButtonCopy) button;
             AndroidUtilities.addToClipboard(btn.copy_text);
             BulletinFactory.of(parentFragment).createCopyBulletin(LocaleController.formatString(R.string.ExactTextCopied, btn.copy_text)).show(true);
-        } else if (button instanceof TLRPC.TL_keyboardButton) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButton) {
             SendMessagesHelper.SendMessageParams params = SendMessagesHelper.SendMessageParams.of(button.text, dialog_id, replyMessageObject, getThreadMessage(), null, false, null, null, null, true, 0, 0, null, false);
             params.quick_reply_shortcut = parentFragment != null ? parentFragment.quickReplyShortcut : null;
             params.quick_reply_shortcut_id = parentFragment != null ? parentFragment.getQuickReplyId() : 0;
@@ -12005,18 +12005,18 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             params.canUsePangu = false;  // Na: Always Do not use pangu for bot button text
             sendButton.setEffect(effectId = 0);
             SendMessagesHelper.getInstance(currentAccount).sendMessage(params);
-        } else if (button instanceof TLRPC.TL_keyboardButtonUrl) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonUrl) {
             if (Browser.urlMustNotHaveConfirmation(button.url) && !NaConfig.INSTANCE.getConfirmAllLinks().Bool()) {
                 Browser.openUrl(parentActivity, Uri.parse(button.url), true, true, progress);
             } else {
                 AlertsCreator.showOpenUrlAlert(parentFragment, button.url, false, true, true, progress, resourcesProvider);
             }
-        } else if (button instanceof TLRPC.TL_keyboardButtonRequestPhone) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonRequestPhone) {
             parentFragment.shareMyContact(2, messageObject);
-        } else if (button instanceof TLRPC.TL_keyboardButtonRequestPoll) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonRequestPoll) {
             parentFragment.openPollCreate((button.flags & 1) != 0 ? button.quiz : null);
             return false;
-        } else if (button instanceof TLRPC.TL_keyboardButtonWebView || button instanceof TLRPC.TL_keyboardButtonSimpleWebView) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonWebView || button instanceof TL_keyboard.TL_keyboardButtonSimpleWebView) {
             long botId = messageObject.messageOwner.via_bot_id != 0 ? messageObject.messageOwner.via_bot_id : messageObject.messageOwner.from_id.user_id;
             TLRPC.User user = MessagesController.getInstance(currentAccount).getUser(botId);
             Runnable onRequestWebView = new Runnable() {
@@ -12033,7 +12033,7 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                         return;
                     }
 
-                    final WebViewRequestProps props = WebViewRequestProps.of(currentAccount, messageObject.messageOwner.dialog_id, botId, button.text, button.url, button instanceof TLRPC.TL_keyboardButtonSimpleWebView ? BotWebViewAttachedSheet.TYPE_SIMPLE_WEB_VIEW_BUTTON : BotWebViewAttachedSheet.TYPE_WEB_VIEW_BUTTON, replyMessageObject != null ? replyMessageObject.messageOwner.id : 0, parentFragment == null ? 0L : parentFragment.getSendMonoForumPeerId(), false, null, false, null, null, 0, false, false);
+                    final WebViewRequestProps props = WebViewRequestProps.of(currentAccount, messageObject.messageOwner.dialog_id, botId, button.text, button.url, button instanceof TL_keyboard.TL_keyboardButtonSimpleWebView ? BotWebViewAttachedSheet.TYPE_SIMPLE_WEB_VIEW_BUTTON : BotWebViewAttachedSheet.TYPE_WEB_VIEW_BUTTON, replyMessageObject != null ? replyMessageObject.messageOwner.id : 0, parentFragment == null ? 0L : parentFragment.getSendMonoForumPeerId(), false, null, false, null, null, 0, false, false);
                     if (LaunchActivity.instance != null && LaunchActivity.instance.getBottomSheetTabs() != null && LaunchActivity.instance.getBottomSheetTabs().tryReopenTab(props) != null) {
                         if (botCommandsMenuButton != null) {
                             botCommandsMenuButton.setOpened(false);
@@ -12069,7 +12069,7 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                     SharedPrefsHelper.setWebViewConfirmShown(currentAccount, botId, true);
                 }, null);
             }
-        } else if (button instanceof TLRPC.TL_keyboardButtonRequestGeoLocation) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonRequestGeoLocation) {
             AlertDialog.Builder builder = new AlertDialog.Builder(parentActivity);
             builder.setTitle(getString("ShareYouLocationTitle", R.string.ShareYouLocationTitle));
             builder.setMessage(getString("ShareYouLocationInfo", R.string.ShareYouLocationInfo));
@@ -12084,10 +12084,10 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
             });
             builder.setNegativeButton(getString("Cancel", R.string.Cancel), null);
             parentFragment.showDialog(builder.create());
-        } else if (button instanceof TLRPC.TL_keyboardButtonCallback || button instanceof TLRPC.TL_keyboardButtonGame || button instanceof TLRPC.TL_keyboardButtonBuy || button instanceof TLRPC.TL_keyboardButtonUrlAuth) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonCallback || button instanceof TL_keyboard.TL_keyboardButtonGame || button instanceof TL_keyboard.TL_keyboardButtonBuy || button instanceof TL_keyboard.TL_keyboardButtonUrlAuth) {
             SendMessagesHelper.getInstance(currentAccount).sendCallback(true, messageObject, button, parentFragment);
-        } else if (button instanceof TLRPC.TL_keyboardButtonSwitchInline) {
-            if (parentFragment.processSwitchButton((TLRPC.TL_keyboardButtonSwitchInline) button)) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonSwitchInline) {
+            if (parentFragment.processSwitchButton((TL_keyboard.TL_keyboardButtonSwitchInline) button)) {
                 return true;
             }
             if (button.same_peer) {
@@ -12169,15 +12169,15 @@ if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.VANILLA_ICE_CREAM) {
                 });
                 parentFragment.presentFragment(fragment);
             }
-        } else if (button instanceof TLRPC.TL_keyboardButtonUserProfile) {
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonUserProfile) {
             if (MessagesController.getInstance(currentAccount).getUser(button.user_id) != null) {
                 Bundle args = new Bundle();
                 args.putLong("user_id", button.user_id);
                 ProfileActivity fragment = new ProfileActivity(args);
                 parentFragment.presentFragment(fragment);
             }
-        } else if (button instanceof TLRPC.TL_keyboardButtonRequestPeer) {
-            TLRPC.TL_keyboardButtonRequestPeer btn = (TLRPC.TL_keyboardButtonRequestPeer) button;
+        } else if (button instanceof TL_keyboard.TL_keyboardButtonRequestPeer) {
+            TL_keyboard.TL_keyboardButtonRequestPeer btn = (TL_keyboard.TL_keyboardButtonRequestPeer) button;
             if (btn.peer_type != null && messageObject != null && messageObject.messageOwner != null) {
                 if (btn.peer_type instanceof TLRPC.TL_requestPeerTypeCreateBot) {
                     TLRPC.User bot;
